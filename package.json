@@ -1,0 +1,23 @@
+{
+  "name": "redux-saga-api-call-routines",
+  "version": "0.0.1",
+  "description": "redux-saga-api-call-routines is used to add authentication header to any \"*_REQUEST\" action. It is handy to use with redux-saga-routines.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "redux-saga-routines",
+    "api",
+    "call",
+    "jwt"
+  ],
+  "author": "Alexander Veligurov",
+  "license": "ISC",
+  "dependencies": {
+    "fbjs": "^0.8.15",
+    "lodash": "^4.17.4",
+    "redux-actions": "^2.2.1",
+    "redux-saga": "^0.15.6"
+  }
+}
