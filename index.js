@@ -1,4 +1,5 @@
 import { createRoutine as _createRoutine } from 'redux-saga-routines';
+import ApiCallSaga from './ApiCallSagas';
 
 export const createRoutine = (PREFIX) => {
   const routine = _createRoutine(PREFIX);
@@ -6,8 +7,6 @@ export const createRoutine = (PREFIX) => {
   routine.ERROR = `${PREFIX}_ERROR`;
   return routine;
 };
-
-import ApiCallSaga from './ApiCallSagas';
 
 export { cancelAll } from './ApiCallActions';
 

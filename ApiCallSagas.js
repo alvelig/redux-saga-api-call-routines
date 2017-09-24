@@ -5,7 +5,6 @@ import { cancelAll } from './ApiCallActions';
 
 const opts = {
   predicate: (action) => {
-    console.log(_.endsWith(action.type, '_REQUEST') && action);
     return action && _.endsWith(action.type, '_REQUEST') && action.payload;
   },
   authPredicate: (payload) => payload.auth,
@@ -90,7 +89,7 @@ function *apiCall({ fetchApi, refreshAccessToken },
       }
 
       if(!exit && authPredicate(payload) && response.status === 403) {
-        yield* refreshToken({ selectRefreshToken, refreshAccessToken, tokenRefreshing, tokenRefreshed, logout, cancelPredicate });
+        yield* refreshToken({ action, selectRefreshToken, refreshAccessToken, tokenRefreshing, tokenRefreshed, logout, cancelPredicate });
         exit = true;
       } else {
         //TODO: define error format!!!
@@ -109,7 +108,7 @@ function *apiCall({ fetchApi, refreshAccessToken },
   }
 }
 
-function* refreshToken({ selectRefreshToken, refreshAccessToken, tokenRefreshing, tokenRefreshed, logout, cancelPredicate }) {
+function* refreshToken({ action, selectRefreshToken, refreshAccessToken, tokenRefreshing, tokenRefreshed, logout, cancelPredicate }) {
   const refreshToken = yield select(selectRefreshToken);
   if(!refreshToken) {
     yield put(logout());
