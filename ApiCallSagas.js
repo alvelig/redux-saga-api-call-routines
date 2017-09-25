@@ -80,11 +80,8 @@ function *apiCall({ fetchApi, refreshAccessToken },
         throw new ApiCallCancelled();
       }
 
-      console.log(result);
-      const { response, error } = result;
-
-      if (response.ok) {
-        yield put(opts.response(action, response.body));
+      if (result.ok) {
+        yield put(opts.response(action, response));
         return;
       }
 
@@ -92,18 +89,12 @@ function *apiCall({ fetchApi, refreshAccessToken },
         yield* refreshToken({ action, selectRefreshToken, refreshAccessToken, tokenRefreshing, tokenRefreshed, logout, cancelPredicate });
         exit = true;
       } else {
-        //TODO: define error format!!!
-        if(error) {
-          throw error;
-        } else {
-          //TODO: define response based errors
-          //TODO: test this part
-          put(opts.error(action, response));
-        }
+        //TODO: define response based errors
+        //TODO: test this part
+        put(opts.error(action, response));
       }
     }
   } catch (e) {
-    console.log(e);
     yield put(opts.error(action, e));
   }
 }
