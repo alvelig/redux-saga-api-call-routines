@@ -71,8 +71,8 @@ function *apiCall({ fetchApi, refreshAccessToken },
         continue;
       }
 
-      const { result, cancelled } = yield race({
-        result: call(fetchApi, payload, selectedToken),
+      const { response, cancelled } = yield race({
+        response: call(fetchApi, payload, selectedToken),
         cancelled: take(cancelPredicate(action))
       });
 
@@ -80,7 +80,7 @@ function *apiCall({ fetchApi, refreshAccessToken },
         throw new ApiCallCancelled();
       }
 
-      if (result.ok) {
+      if (response.ok) {
         yield put(opts.response(action, response));
         return;
       }
