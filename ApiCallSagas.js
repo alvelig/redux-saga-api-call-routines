@@ -92,6 +92,7 @@ function *apiCall({ fetchApi, refreshAccessToken },
         //TODO: define response based errors
         //TODO: test this part
         put(opts.error(action, response));
+        return;
       }
     }
   } catch (e) {
