@@ -5,7 +5,6 @@ import { cancelAll } from './ApiCallActions';
 
 const opts = {
   predicate: (action) => {
-    console.log(action, action && _.endsWith(action.type, '_REQUEST') && action.payload);
     return action && _.endsWith(action.type, '_REQUEST') && action.payload;
   },
   authPredicate: (payload) => payload.auth,
