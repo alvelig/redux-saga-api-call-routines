@@ -5,6 +5,7 @@ import { cancelAll } from './ApiCallActions';
 
 const opts = {
   predicate: (action) => {
+    console.log(action, action && _.endsWith(action.type, '_REQUEST') && action.payload);
     return action && _.endsWith(action.type, '_REQUEST') && action.payload;
   },
   authPredicate: (payload) => payload.auth,
@@ -91,7 +92,7 @@ function *apiCall({ fetchApi, refreshAccessToken },
       } else {
         //TODO: define response based errors
         //TODO: test this part
-        put(opts.error(action, response));
+        yield put(opts.error(action, response));
         return;
       }
     }
