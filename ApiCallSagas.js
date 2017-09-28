@@ -164,3 +164,19 @@ export default function *ApiCallSagas({
     { isTokenRefreshing, selectAccessToken, selectRefreshToken },
     authPredicate, cancelPredicate);
 }
+
+export function* ApiCall(Routine, options) {
+  /*** trigger request action, so that it can be taken by ApiSaga ***/
+  yield put(Routine.request(options));
+
+  /*** yield the winner ***/
+  const { response, error } = yield race({
+    response: take(Routine.RESPONSE),
+    error: take(Routine.ERROR)
+  });
+
+  if(response) {
+    return { response: response.payload };
+  }
+  return error.payload;
+};
