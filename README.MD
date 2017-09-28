@@ -30,8 +30,9 @@ const api = {
    /***
      * Promise
       * accepts refreshToken 
-      * returns success object: { token } or error object: { error: { status } }
-      * if status === 403 then logout is dispatched, as the refreshToken is rejected
+      * on success returns token, 
+      * on token rejected returns null - in that case logout will be dispatched
+      * other error throws error
      */
   refreshAccessToken 
 };

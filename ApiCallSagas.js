@@ -63,6 +63,8 @@ function *apiCall({ fetchApi, refreshAccessToken },
         selectedToken = yield select(selectAccessToken);
       }
 
+      console.log(selectedToken);
+
       //TODO: validate token
       /*** if token is invalid, try to refresh it and start over ***/
       if(false) { //TOKEN INVALID
@@ -71,7 +73,7 @@ function *apiCall({ fetchApi, refreshAccessToken },
         continue;
       }
 
-      const { response, cancelled } = yield race({
+      const {response, cancelled} = yield race({
         response: call(fetchApi, payload, selectedToken),
         cancelled: take(cancelPredicate(action))
       });
@@ -84,6 +86,8 @@ function *apiCall({ fetchApi, refreshAccessToken },
         yield put(opts.response(action, response));
         return;
       }
+
+      console.log(response, !exit && authPredicate(payload) && response.status === 403); //TODO: rejected accessToken predicate
 
       if(!exit && authPredicate(payload) && response.status === 403) {
         yield* refreshToken({ action, selectRefreshToken, refreshAccessToken, tokenRefreshing, tokenRefreshed, logout, cancelPredicate });
@@ -109,8 +113,8 @@ function* refreshToken({ action, selectRefreshToken, refreshAccessToken, tokenRe
 
   yield put(tokenRefreshing());
 
-  const {refreshedTokenResponse, cancelled} = yield race({
-    refreshedTokenResponse: call(refreshAccessToken, refreshToken),
+  const { refreshedToken, cancelled } = yield race({
+    refreshedToken: call(refreshAccessToken, refreshToken),
     cancelled: take(cancelPredicate(action))
   });
 
@@ -118,19 +122,13 @@ function* refreshToken({ action, selectRefreshToken, refreshAccessToken, tokenRe
     throw new ApiCallCancelled();
   }
 
-  const { token, error } = refreshedTokenResponse;
+  invariant(_.isString(refreshToken), "refreshToken should return a String, null or throw error");
 
-  if(token) {
-    yield put(tokenRefreshed(token));
+  if(refreshedToken) {
+    yield put(tokenRefreshed({ accessToken: refreshedToken }));
     return true;
-  }
-
-  if(error) {
-    if(error.status === 403) {
-      /*** TOKEN INVALID - LOGOUT (LOGOUT WILL CANCEL ALL OTHER PENDING REQUESTS) ***/
-      yield put(logout());
-    }
-    throw error;
+  } else {
+    yield put(logout());
   }
 }
 
@@ -178,5 +176,5 @@ export function* ApiCall(Routine, options) {
   if(response) {
     return { response: response.payload };
   }
-  return error.payload;
+  return { error: error.payload };
 };
