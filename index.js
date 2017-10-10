@@ -7,6 +7,15 @@ export const createRoutine = (PREFIX) => {
   routine.RESPONSE = _.replace(routine.TRIGGER, 'TRIGGER', 'RESPONSE');
   routine.ERROR = _.replace(routine.TRIGGER, 'TRIGGER', 'ERROR');
 
+  routine.response = (payload) => ({
+    type: routine.RESPONSE,
+    payload
+  });
+  routine.error = (payload) => ({
+    type: routine.ERROR,
+    payload
+  });
+
   let ROUTINE = (payload, dispatch) => dispatch(routine.trigger(payload));
 
   return Object.assign(ROUTINE, routine);
