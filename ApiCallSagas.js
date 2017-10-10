@@ -5,21 +5,21 @@ import { cancelAll } from './ApiCallActions';
 
 const opts = {
   predicate: (action) => {
-    return action && _.endsWith(action.type, '_REQUEST') && action.payload;
+    return action && _.endsWith(action.type, 'REQUEST') && action.payload;
   },
   authPredicate: (payload) => payload.auth,
   cancelPredicate: (action) => {
-    const cancelActionType = _.replace(action, '_REQUEST', '_CANCEL');
+    const cancelActionType = _.replace(action, 'REQUEST', 'CANCEL');
     return (cancelAction) => {
       return cancelAction.type === `${cancelAll}` || cancelAction.type === cancelActionType;
     }
   },
   response: (action, payload) => ({
-  type: _.replace(action.type, '_REQUEST', '_RESPONSE'),
+  type: _.replace(action.type, 'REQUEST', 'RESPONSE'),
   payload
 }),
   error: (action, payload) => ({
-  type: _.replace(action.type, '_REQUEST', '_ERROR'),
+  type: _.replace(action.type, 'REQUEST', 'ERROR'),
   payload
 })
 };
