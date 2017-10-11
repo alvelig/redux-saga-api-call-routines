@@ -1,10 +1,12 @@
 import _ from 'lodash';
 import { handleActions } from 'redux-actions';
-import { createRoutine as _createRoutine } from 'redux-saga-routines';
+import { createRoutine as _createRoutine, bindRoutineToReduxForm } from 'redux-saga-routines';
 import ApiCallSaga, { ApiCall as _ApiCall } from './ApiCallSagas';
 
-export const createRoutine = (PREFIX) => {
-  const routine = _createRoutine(PREFIX);
+export const createRoutine = (PREFIX, actionCreator, metaCreator) => {
+
+  const routine = _createRoutine(PREFIX, actionCreator, metaCreator);
+
   routine.RESPONSE = _.replace(routine.TRIGGER, 'TRIGGER', 'RESPONSE');
   routine.ERROR = _.replace(routine.TRIGGER, 'TRIGGER', 'ERROR');
 
@@ -17,7 +19,7 @@ export const createRoutine = (PREFIX) => {
     payload
   });
 
-  let ROUTINE = (payload, dispatch) => dispatch(routine.trigger(payload));
+  let ROUTINE = bindRoutineToReduxForm(routine);
 
   return Object.assign(ROUTINE, routine);
 };
