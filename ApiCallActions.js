@@ -1,5 +1,1 @@
-import { createAction } from 'redux-actions';
-
-const ENTITY = "API_CALL";
-
-export const cancelAll = createAction(`${ENTITY}/CANCEL_ALL`);
+Object.defineProperty(exports,"__esModule",{value:true});exports.cancelAll=undefined;var _reduxActions=require("redux-actions");var ENTITY="API_CALL";var cancelAll=exports.cancelAll=(0,_reduxActions.createAction)(ENTITY+"/CANCEL_ALL");
