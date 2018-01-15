@@ -1,7 +1,7 @@
 `redux-saga-api-call-routines` is used to add authentication header to any "*_REQUEST" action. 
 It is handy to use with redux-saga-routines.
 
-It also refreshes the token if 403 error is returned.
+It also refreshes the token if 401 error is returned.
 
 All pending requests are cancelled if `cancelAll` is dispatched.
 

@@ -87,9 +87,9 @@ function *apiCall({ fetchApi, refreshAccessToken },
         return;
       }
 
-      console.log(response, !exit && authPredicate(payload) && response.status === 403); //TODO: rejected accessToken predicate
+      //console.log(response, !exit && authPredicate(payload) && response.status === 401); //TODO: rejected accessToken predicate
 
-      if(!exit && authPredicate(payload) && response.status === 403) {
+      if(!exit && authPredicate(payload) && response.status === 401) {
         yield* refreshToken({ action, selectRefreshToken, refreshAccessToken, tokenRefreshing, tokenRefreshed, logout, cancelPredicate });
         exit = true;
       } else {
