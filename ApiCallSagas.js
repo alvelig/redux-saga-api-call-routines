@@ -1,1 +1,180 @@
-Object.defineProperty(exports,"__esModule",{value:true});exports.default=ApiCallSagas;exports.ApiCall=ApiCall;var _lodash=require('lodash');var _lodash2=_interopRequireDefault(_lodash);var _invariant=require('fbjs/lib/invariant');var _invariant2=_interopRequireDefault(_invariant);var _effects=require('redux-saga/effects');var _ApiCallActions=require('./ApiCallActions');function _interopRequireDefault(obj){return obj&&obj.__esModule?obj:{default:obj};}var _marked=regeneratorRuntime.mark(apiCall),_marked2=regeneratorRuntime.mark(refreshToken),_marked3=regeneratorRuntime.mark(ApiCallSagas),_marked4=regeneratorRuntime.mark(ApiCall);function _classCallCheck(instance,Constructor){if(!(instance instanceof Constructor)){throw new TypeError("Cannot call a class as a function");}}function _possibleConstructorReturn(self,call){if(!self){throw new ReferenceError("this hasn't been initialised - super() hasn't been called");}return call&&(typeof call==="object"||typeof call==="function")?call:self;}function _inherits(subClass,superClass){if(typeof superClass!=="function"&&superClass!==null){throw new TypeError("Super expression must either be null or a function, not "+typeof superClass);}subClass.prototype=Object.create(superClass&&superClass.prototype,{constructor:{value:subClass,enumerable:false,writable:true,configurable:true}});if(superClass)Object.setPrototypeOf?Object.setPrototypeOf(subClass,superClass):subClass.__proto__=superClass;}var opts={predicate:function predicate(action){return action&&_lodash2.default.endsWith(action.type,'REQUEST')&&action.payload;},authPredicate:function authPredicate(payload){return payload.auth;},cancelPredicate:function cancelPredicate(action){var cancelActionType=_lodash2.default.replace(action,'REQUEST','CANCEL');return function(cancelAction){return cancelAction.type===''+_ApiCallActions.cancelAll||cancelAction.type===cancelActionType;};},response:function response(action,payload){return{type:_lodash2.default.replace(action.type,'REQUEST','RESPONSE'),payload:payload};},error:function error(action,payload){return{type:_lodash2.default.replace(action.type,'REQUEST','ERROR'),payload:payload};}};var ApiCallCancelled=function(_Error){_inherits(ApiCallCancelled,_Error);function ApiCallCancelled(){var _ref;var _temp,_this,_ret;_classCallCheck(this,ApiCallCancelled);for(var _len=arguments.length,args=Array(_len),_key=0;_key<_len;_key++){args[_key]=arguments[_key];}return _ret=(_temp=(_this=_possibleConstructorReturn(this,(_ref=ApiCallCancelled.__proto__||Object.getPrototypeOf(ApiCallCancelled)).call.apply(_ref,[this].concat(args))),_this),_this.message="Cancelled",_temp),_possibleConstructorReturn(_this,_ret);}return ApiCallCancelled;}(Error);function apiCall(_ref2,_ref3,_ref4,authPredicate,cancelPredicate,action){var fetchApi=_ref2.fetchApi,refreshAccessToken=_ref2.refreshAccessToken;var logout=_ref3.logout,tokenRefreshing=_ref3.tokenRefreshing,tokenRefreshed=_ref3.tokenRefreshed;var isTokenRefreshing=_ref4.isTokenRefreshing,selectAccessToken=_ref4.selectAccessToken,selectRefreshToken=_ref4.selectRefreshToken;var type,payload,exit,selectedToken,_ref5,_cancelled,_ref6,response,cancelled;return regeneratorRuntime.wrap(function apiCall$(_context){while(1){switch(_context.prev=_context.next){case 0:type=action.type,payload=action.payload;_context.prev=1;exit=false;case 3:if(!true){_context.next=44;break;}selectedToken=void 0;if(!authPredicate(payload)){_context.next=18;break;}_context.next=8;return(0,_effects.select)(isTokenRefreshing);case 8:if(!_context.sent){_context.next=15;break;}_context.next=11;return(0,_effects.race)({refreshed:(0,_effects.take)(''+tokenRefreshed),cancelled:(0,_effects.take)(cancelPredicate(action))});case 11:_ref5=_context.sent;_cancelled=_ref5.cancelled;if(!_cancelled){_context.next=15;break;}throw new ApiCallCancelled();case 15:_context.next=17;return(0,_effects.select)(selectAccessToken);case 17:selectedToken=_context.sent;case 18:console.log(selectedToken);if(!false){_context.next=23;break;}return _context.delegateYield(refreshToken({selectRefreshToken:selectRefreshToken,refreshAccessToken:refreshAccessToken,tokenRefreshing:tokenRefreshing,tokenRefreshed:tokenRefreshed,logout:logout,cancelPredicate:cancelPredicate}),'t0',21);case 21:exit=true;return _context.abrupt('continue',3);case 23:_context.next=25;return(0,_effects.race)({response:(0,_effects.call)(fetchApi,payload,selectedToken),cancelled:(0,_effects.take)(cancelPredicate(action))});case 25:_ref6=_context.sent;response=_ref6.response;cancelled=_ref6.cancelled;if(!cancelled){_context.next=30;break;}throw new ApiCallCancelled();case 30:if(!response.ok){_context.next=34;break;}_context.next=33;return(0,_effects.put)(opts.response(action,response));case 33:return _context.abrupt('return');case 34:if(!(!exit&&authPredicate(payload)&&response.status===401)){_context.next=39;break;}return _context.delegateYield(refreshToken({action:action,selectRefreshToken:selectRefreshToken,refreshAccessToken:refreshAccessToken,tokenRefreshing:tokenRefreshing,tokenRefreshed:tokenRefreshed,logout:logout,cancelPredicate:cancelPredicate}),'t1',36);case 36:exit=true;_context.next=42;break;case 39:_context.next=41;return(0,_effects.put)(opts.error(action,response));case 41:return _context.abrupt('return');case 42:_context.next=3;break;case 44:_context.next=50;break;case 46:_context.prev=46;_context.t2=_context['catch'](1);_context.next=50;return(0,_effects.put)(opts.error(action,_context.t2));case 50:case'end':return _context.stop();}}},_marked,this,[[1,46]]);}function refreshToken(_ref7){var action=_ref7.action,selectRefreshToken=_ref7.selectRefreshToken,refreshAccessToken=_ref7.refreshAccessToken,tokenRefreshing=_ref7.tokenRefreshing,tokenRefreshed=_ref7.tokenRefreshed,logout=_ref7.logout,cancelPredicate=_ref7.cancelPredicate;var refreshToken,_ref8,refreshedToken,cancelled;return regeneratorRuntime.wrap(function refreshToken$(_context2){while(1){switch(_context2.prev=_context2.next){case 0:_context2.next=2;return(0,_effects.select)(selectRefreshToken);case 2:refreshToken=_context2.sent;if(refreshToken){_context2.next=7;break;}_context2.next=6;return(0,_effects.put)(logout());case 6:throw new ApiCallCancelled();case 7:_context2.next=9;return(0,_effects.put)(tokenRefreshing());case 9:_context2.next=11;return(0,_effects.race)({refreshedToken:(0,_effects.call)(refreshAccessToken,refreshToken),cancelled:(0,_effects.take)(cancelPredicate(action))});case 11:_ref8=_context2.sent;refreshedToken=_ref8.refreshedToken;cancelled=_ref8.cancelled;if(!cancelled){_context2.next=16;break;}throw new ApiCallCancelled();case 16:(0,_invariant2.default)(_lodash2.default.isString(refreshToken),"refreshToken should return a String, null or throw error");if(!refreshedToken){_context2.next=23;break;}_context2.next=20;return(0,_effects.put)(tokenRefreshed({accessToken:refreshedToken}));case 20:return _context2.abrupt('return',true);case 23:_context2.next=25;return(0,_effects.put)(logout());case 25:case'end':return _context2.stop();}}},_marked2,this);}function ApiCallSagas(){var _ref9=arguments.length>0&&arguments[0]!==undefined?arguments[0]:{},fetchApi=_ref9.fetchApi,refreshAccessToken=_ref9.refreshAccessToken,logout=_ref9.logout,tokenRefreshing=_ref9.tokenRefreshing,tokenRefreshed=_ref9.tokenRefreshed,isTokenRefreshing=_ref9.isTokenRefreshing,selectAccessToken=_ref9.selectAccessToken,selectRefreshToken=_ref9.selectRefreshToken;var pattern=arguments.length>1&&arguments[1]!==undefined?arguments[1]:opts.predicate;var authPredicate=arguments.length>2&&arguments[2]!==undefined?arguments[2]:opts.authPredicate;var cancelPredicate=arguments.length>3&&arguments[3]!==undefined?arguments[3]:opts.cancelPredicate;return regeneratorRuntime.wrap(function ApiCallSagas$(_context3){while(1){switch(_context3.prev=_context3.next){case 0:(0,_invariant2.default)(fetchApi,"fetchApi method must be defined within the argument passed to ApiCallSagas");(0,_invariant2.default)(refreshAccessToken,"refreshAccessToken method must be defined within the argument passed to ApiCallSagas");(0,_invariant2.default)(logout,"logout action must be defined within the argument passed to ApiCallSagas");(0,_invariant2.default)(tokenRefreshing,"tokenRefreshing action must be defined within the argument passed to ApiCallSagas");(0,_invariant2.default)(tokenRefreshed,"tokenRefreshed action must be defined within the argument passed to ApiCallSagas");(0,_invariant2.default)(isTokenRefreshing,"isTokenRefreshing selector must be defined within the argument passed to ApiCallSagas");(0,_invariant2.default)(selectAccessToken,"selectAccessToken selector must be defined within the argument passed to ApiCallSagas");(0,_invariant2.default)(selectRefreshToken,"selectRefreshToken selector must be defined within the argument passed to ApiCallSagas");_context3.next=10;return(0,_effects.takeEvery)(pattern,apiCall,{fetchApi:fetchApi,refreshAccessToken:refreshAccessToken},{logout:logout,tokenRefreshing:tokenRefreshing,tokenRefreshed:tokenRefreshed},{isTokenRefreshing:isTokenRefreshing,selectAccessToken:selectAccessToken,selectRefreshToken:selectRefreshToken},authPredicate,cancelPredicate);case 10:case'end':return _context3.stop();}}},_marked3,this);}function ApiCall(Routine,options){var _ref10,response,error;return regeneratorRuntime.wrap(function ApiCall$(_context4){while(1){switch(_context4.prev=_context4.next){case 0:_context4.next=2;return(0,_effects.put)(Routine.request(options));case 2:_context4.next=4;return(0,_effects.race)({response:(0,_effects.take)(Routine.RESPONSE),error:(0,_effects.take)(Routine.ERROR)});case 4:_ref10=_context4.sent;response=_ref10.response;error=_ref10.error;if(!response){_context4.next=9;break;}return _context4.abrupt('return',{response:response.payload});case 9:return _context4.abrupt('return',{error:error.payload});case 10:case'end':return _context4.stop();}}},_marked4,this);};
+import _ from 'lodash';
+import invariant from 'fbjs/lib/invariant';
+import { call, put, race, select, take, takeEvery } from 'redux-saga/effects';
+import { cancelAll } from './ApiCallActions';
+
+const opts = {
+  predicate: (action) => {
+    return action && _.endsWith(action.type, 'REQUEST') && action.payload;
+  },
+  authPredicate: (payload) => payload.auth,
+  cancelPredicate: (action) => {
+    const cancelActionType = _.replace(action, 'REQUEST', 'CANCEL');
+    return (cancelAction) => {
+      return cancelAction.type === `${cancelAll}` || cancelAction.type === cancelActionType;
+    }
+  },
+  response: (action, payload) => ({
+    type: _.replace(action.type, 'REQUEST', 'RESPONSE'),
+    payload
+  }),
+  error: (action, payload) => ({
+    type: _.replace(action.type, 'REQUEST', 'ERROR'),
+    payload
+  })
+};
+
+function ApiCallCancelled() {
+  Error.call(this, "Cancelled");
+}
+
+
+//TODO: make it a class?
+function *apiCall({ fetchApi, refreshAccessToken },
+                  { logout, tokenRefreshing, tokenRefreshed },
+                  { isTokenRefreshing, selectAccessToken, selectRefreshToken },
+                  authPredicate, cancelPredicate, action) {
+
+  const { type, payload } = action;
+
+  /*** any error means error ***/
+  try {
+
+    let exit = false;
+
+    /*** this loop is to be able to retry the request in case ***/
+    while (true) {
+      let selectedToken;
+
+      /*** if requires auth then wait if token is refreshing or cancel ***/
+      if(authPredicate(payload)) {
+        if (yield select(isTokenRefreshing)) {
+
+          const {cancelled} = yield race({
+            refreshed: take(`${tokenRefreshed}`),
+            cancelled: take(cancelPredicate(action))
+          });
+
+          if (cancelled) {
+            throw new ApiCallCancelled();
+          }
+        }
+
+        selectedToken = yield select(selectAccessToken);
+      }
+
+      console.log(selectedToken);
+
+      //TODO: validate token
+      /*** if token is invalid, try to refresh it and start over ***/
+      if(false) { //TOKEN INVALID
+        yield* refreshToken({ selectRefreshToken, refreshAccessToken, tokenRefreshing, tokenRefreshed, logout, cancelPredicate });
+        exit = true;
+        continue;
+      }
+
+      const {response, cancelled} = yield race({
+        response: call(fetchApi, payload, selectedToken),
+        cancelled: take(cancelPredicate(action))
+      });
+
+      if (cancelled) {
+        throw new ApiCallCancelled();
+      }
+
+      if (response.ok) {
+        yield put(opts.response(action, response));
+        return;
+      }
+
+      //console.log(response, !exit && authPredicate(payload) && response.status === 401); //TODO: rejected accessToken predicate
+
+      if(!exit && authPredicate(payload) && response.status === 401) {
+        yield* refreshToken({ action, selectRefreshToken, refreshAccessToken, tokenRefreshing, tokenRefreshed, logout, cancelPredicate });
+        exit = true;
+      } else {
+        //TODO: define response based errors
+        //TODO: test this part
+        yield put(opts.error(action, response));
+        return;
+      }
+    }
+  } catch (e) {
+    yield put(opts.error(action, e));
+  }
+}
+
+function* refreshToken({ action, selectRefreshToken, refreshAccessToken, tokenRefreshing, tokenRefreshed, logout, cancelPredicate }) {
+  const refreshToken = yield select(selectRefreshToken);
+  if(!refreshToken) {
+    yield put(logout());
+    throw new ApiCallCancelled();
+  }
+
+  yield put(tokenRefreshing());
+
+  const { refreshedToken, cancelled } = yield race({
+    refreshedToken: call(refreshAccessToken, refreshToken),
+    cancelled: take(cancelPredicate(action))
+  });
+
+  if(cancelled) {
+    throw new ApiCallCancelled();
+  }
+
+  invariant(_.isString(refreshToken), "refreshToken should return a String, null or throw error");
+
+  if(refreshedToken) {
+    yield put(tokenRefreshed({ accessToken: refreshedToken }));
+    return true;
+  } else {
+    yield put(logout());
+  }
+}
+
+export default function *ApiCallSagas({
+                                        fetchApi,
+                                        refreshAccessToken,
+                                        logout,
+                                        tokenRefreshing,
+                                        tokenRefreshed,
+                                        isTokenRefreshing,
+                                        selectAccessToken,
+                                        selectRefreshToken
+                                      } = {},
+                                      pattern = opts.predicate,
+                                      authPredicate = opts.authPredicate,
+                                      cancelPredicate = opts.cancelPredicate
+) {
+
+  invariant(fetchApi, "fetchApi method must be defined within the argument passed to ApiCallSagas");
+  invariant(refreshAccessToken, "refreshAccessToken method must be defined within the argument passed to ApiCallSagas");
+  invariant(logout, "logout action must be defined within the argument passed to ApiCallSagas");
+  invariant(tokenRefreshing, "tokenRefreshing action must be defined within the argument passed to ApiCallSagas");
+  invariant(tokenRefreshed, "tokenRefreshed action must be defined within the argument passed to ApiCallSagas");
+  invariant(isTokenRefreshing, "isTokenRefreshing selector must be defined within the argument passed to ApiCallSagas");
+  invariant(selectAccessToken, "selectAccessToken selector must be defined within the argument passed to ApiCallSagas");
+  invariant(selectRefreshToken, "selectRefreshToken selector must be defined within the argument passed to ApiCallSagas");
+
+  yield takeEvery(pattern, apiCall,
+    { fetchApi, refreshAccessToken },
+    { logout, tokenRefreshing, tokenRefreshed },
+    { isTokenRefreshing, selectAccessToken, selectRefreshToken },
+    authPredicate, cancelPredicate);
+}
+
+export function* ApiCall(Routine, options) {
+  /*** trigger request action, so that it can be taken by ApiSaga ***/
+  yield put(Routine.request(options));
+
+  /*** yield the winner ***/
+  const { response, error } = yield race({
+    response: take(Routine.RESPONSE),
+    error: take(Routine.ERROR)
+  });
+
+  if(response) {
+    return { response: response.payload };
+  }
+  return { error: error.payload };
+};
