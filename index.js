@@ -31,7 +31,10 @@ export const STATUS = {
   ERROR: -1
 };
 
-export const arrayToMap = (array, id = 'id') => _.reduce( array, (acc, val) => acc[val[id]] = val, {});
+export const arrayToMap = (array, id = 'id') => _.reduce( array, (acc, val) => {
+  acc[val[id]] = val;
+  return acc;
+}, {});
 export const mapToArray = (map, id = 'id') => _.values(map);
 
 export { cancelAll } from './ApiCallActions';
