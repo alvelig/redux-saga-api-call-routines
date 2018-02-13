@@ -31,6 +31,9 @@ export const STATUS = {
   ERROR: -1
 };
 
+export const arrayToMap = (array, id = 'id') => _.reduce( payload, (acc, val) => acc[val[id]] = val, {});
+export const mapToArray = (map, id = 'id') => map.values();
+
 export { cancelAll } from './ApiCallActions';
 
 export default ApiCallSaga;
