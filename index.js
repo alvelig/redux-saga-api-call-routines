@@ -66,3 +66,29 @@ export const routineHandler = (Routine, add, initialState) => {
     payload: []
   });
 };
+
+export const formSagaCreator = (Routine, {
+  successAccessor = (result) => result.json,
+  errorAccessor = (error) => error.json && error.json.message ? error.json.message : "Error desconocido",
+  isFormValid = (action) => true,
+  body = (action) => undefined,
+  url,
+  method,
+  ...fetchOpts
+}) => {
+  return function* formSaga(action) {
+    //TODO: formValidation
+    const { response, error } = yield* ApiCall(Routine, {
+      url: url(action),
+      body: body(action),
+      method: method(action),
+      ...fetchOpts
+    });
+    if(response) {
+      yield put(Routine.success(successAccessor(response)));
+    } else {
+      yield put(Routine.failure(errorAccessor(error)));
+    }
+    yield put(Routine.fulfill());
+  }
+};
