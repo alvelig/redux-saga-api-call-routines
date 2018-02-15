@@ -73,16 +73,17 @@ export const formSagaCreator = (Routine, {
   isFormValid = (action) => true,
   body = (action) => undefined,
   url,
+  auth,
   method,
-  ...fetchOpts
+  headers
 }) => {
   return function* formSaga(action) {
-    //TODO: formValidation
     const { response, error } = yield* ApiCall(Routine, {
+      auth,
+      headers,
       url: url(action),
       body: body(action),
       method: method(action),
-      ...fetchOpts
     });
     if(response) {
       yield put(Routine.success(successAccessor(response)));
