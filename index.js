@@ -1,7 +1,30 @@
 import _ from 'lodash';
+import { put } from 'redux-saga/effects';
 import { handleActions } from 'redux-actions';
-import { createRoutine as _createRoutine, bindRoutineToReduxForm } from 'redux-saga-routines';
+import { ROUTINE_PROMISE_ACTION } from 'redux-saga-routines/src/constants';
+import {
+  createRoutine as _createRoutine,
+  bindRoutineToReduxForm
+} from 'redux-saga-routines';
 import ApiCallSaga, { ApiCall as _ApiCall } from './ApiCallSagas';
+
+function bindRoutineToReduxFormPromise(routine) {
+  return (values, dispatch, props) =>
+    new Promise((resolve, reject) =>
+      dispatch({
+        type: ROUTINE_PROMISE_ACTION,
+        payload: {
+          values,
+          props,
+        },
+        meta: {
+          defer: { resolve, reject },
+          //reduxFormCompatible: true,
+          routine,
+        },
+      }));
+}
+
 
 export const createRoutine = (PREFIX, actionCreator, metaCreator) => {
 
@@ -21,6 +44,8 @@ export const createRoutine = (PREFIX, actionCreator, metaCreator) => {
 
   let ROUTINE = bindRoutineToReduxForm(routine);
 
+  routine.promise = bindRoutineToReduxFormPromise(routine);
+
   return Object.assign(ROUTINE, routine);
 };
 
@@ -31,10 +56,12 @@ export const STATUS = {
   ERROR: -1
 };
 
-export const arrayToMap = (array, id = 'id') => _.reduce( array, (acc, val) => {
-  acc[val[id]] = val;
-  return acc;
-}, {});
+export const arrayToMap = (array, id = 'id') => {
+  return _.reduce( array, (acc, val) => {
+    acc[val[id]] = val;
+    return acc;
+  }, {});
+};
 export const mapToArray = (map, id = 'id') => _.values(map);
 
 export { cancelAll } from './ApiCallActions';
@@ -62,9 +89,9 @@ export const routineHandler = (Routine, add, initialState) => {
       }),
     add
   }), initialState || {
-    status: STATUS.IDLE,
-    payload: []
-  });
+      status: STATUS.IDLE,
+      payload: []
+    });
 };
 
 export const formSagaCreator = (Routine, {
