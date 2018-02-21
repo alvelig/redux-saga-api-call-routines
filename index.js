@@ -108,9 +108,9 @@ export const formSagaCreator = (Routine, {
     const { response, error } = yield* ApiCall(Routine, {
       auth,
       headers,
-      url: url(action),
-      body: body(action),
-      method: method(action),
+      url: _.isFunction(url) ? url(action): url,
+      body: _.isFunction(body) ? body(action): body,
+      method: _.isFunction(method) ? method(action) : method,
     });
     if(response) {
       yield put(Routine.success(successAccessor(response)));
