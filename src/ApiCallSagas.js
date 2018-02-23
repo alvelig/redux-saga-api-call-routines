@@ -4,15 +4,15 @@ import { call, put, race, select, take, takeEvery } from 'redux-saga/effects';
 import { cancelAll } from './ApiCallActions';
 
 const opts = {
-  predicate: (action) => {
+  predicate: action => {
     return action && _.endsWith(action.type, 'REQUEST') && action.payload;
   },
-  authPredicate: (payload) => payload.auth,
-  cancelPredicate: (action) => {
+  authPredicate: payload => payload.auth,
+  cancelPredicate: action => {
     const cancelActionType = _.replace(action, 'REQUEST', 'CANCEL');
-    return (cancelAction) => {
+    return cancelAction => {
       return cancelAction.type === `${cancelAll}` || cancelAction.type === cancelActionType;
-    }
+    };
   },
   response: (action, payload) => ({
     type: _.replace(action.type, 'REQUEST', 'RESPONSE'),
@@ -28,12 +28,8 @@ function ApiCallCancelled() {
   Error.call(this, "Cancelled");
 }
 
-
 //TODO: make it a class?
-function *apiCall({ fetchApi, refreshAccessToken },
-                  { logout, tokenRefreshing, tokenRefreshed },
-                  { isTokenRefreshing, selectAccessToken, selectRefreshToken },
-                  authPredicate, cancelPredicate, action) {
+function* apiCall({ fetchApi, refreshAccessToken }, { logout, tokenRefreshing, tokenRefreshed }, { isTokenRefreshing, selectAccessToken, selectRefreshToken }, authPredicate, cancelPredicate, action) {
 
   const { type, payload } = action;
 
@@ -47,10 +43,10 @@ function *apiCall({ fetchApi, refreshAccessToken },
       let selectedToken;
 
       /*** if requires auth then wait if token is refreshing or cancel ***/
-      if(authPredicate(payload)) {
+      if (authPredicate(payload)) {
         if (yield select(isTokenRefreshing)) {
 
-          const {cancelled} = yield race({
+          const { cancelled } = yield race({
             refreshed: take(`${tokenRefreshed}`),
             cancelled: take(cancelPredicate(action))
           });
@@ -67,13 +63,14 @@ function *apiCall({ fetchApi, refreshAccessToken },
 
       //TODO: validate token
       /*** if token is invalid, try to refresh it and start over ***/
-      if(false) { //TOKEN INVALID
+      if (false) {
+        //TOKEN INVALID
         yield* refreshToken({ selectRefreshToken, refreshAccessToken, tokenRefreshing, tokenRefreshed, logout, cancelPredicate });
         exit = true;
         continue;
       }
 
-      const {response, cancelled} = yield race({
+      const { response, cancelled } = yield race({
         response: call(fetchApi, payload, selectedToken),
         cancelled: take(cancelPredicate(action))
       });
@@ -89,7 +86,7 @@ function *apiCall({ fetchApi, refreshAccessToken },
 
       //console.log(response, !exit && authPredicate(payload) && response.status === 401); //TODO: rejected accessToken predicate
 
-      if(!exit && authPredicate(payload) && response.status === 401) {
+      if (!exit && authPredicate(payload) && response.status === 401) {
         yield* refreshToken({ action, selectRefreshToken, refreshAccessToken, tokenRefreshing, tokenRefreshed, logout, cancelPredicate });
         exit = true;
       } else {
@@ -106,7 +103,7 @@ function *apiCall({ fetchApi, refreshAccessToken },
 
 function* refreshToken({ action, selectRefreshToken, refreshAccessToken, tokenRefreshing, tokenRefreshed, logout, cancelPredicate }) {
   const refreshToken = yield select(selectRefreshToken);
-  if(!refreshToken) {
+  if (!refreshToken) {
     yield put(logout());
     throw new ApiCallCancelled();
   }
@@ -118,13 +115,13 @@ function* refreshToken({ action, selectRefreshToken, refreshAccessToken, tokenRe
     cancelled: take(cancelPredicate(action))
   });
 
-  if(cancelled) {
+  if (cancelled) {
     throw new ApiCallCancelled();
   }
 
   invariant(_.isString(refreshToken), "refreshToken should return a String, null or throw error");
 
-  if(refreshedToken) {
+  if (refreshedToken) {
     yield put(tokenRefreshed({ accessToken: refreshedToken }));
     return true;
   } else {
@@ -132,20 +129,16 @@ function* refreshToken({ action, selectRefreshToken, refreshAccessToken, tokenRe
   }
 }
 
-export default function *ApiCallSagas({
-                                        fetchApi,
-                                        refreshAccessToken,
-                                        logout,
-                                        tokenRefreshing,
-                                        tokenRefreshed,
-                                        isTokenRefreshing,
-                                        selectAccessToken,
-                                        selectRefreshToken
-                                      } = {},
-                                      pattern = opts.predicate,
-                                      authPredicate = opts.authPredicate,
-                                      cancelPredicate = opts.cancelPredicate
-) {
+export default function* ApiCallSagas({
+  fetchApi,
+  refreshAccessToken,
+  logout,
+  tokenRefreshing,
+  tokenRefreshed,
+  isTokenRefreshing,
+  selectAccessToken,
+  selectRefreshToken
+} = {}, pattern = opts.predicate, authPredicate = opts.authPredicate, cancelPredicate = opts.cancelPredicate) {
 
   invariant(fetchApi, "fetchApi method must be defined within the argument passed to ApiCallSagas");
   invariant(refreshAccessToken, "refreshAccessToken method must be defined within the argument passed to ApiCallSagas");
@@ -156,11 +149,7 @@ export default function *ApiCallSagas({
   invariant(selectAccessToken, "selectAccessToken selector must be defined within the argument passed to ApiCallSagas");
   invariant(selectRefreshToken, "selectRefreshToken selector must be defined within the argument passed to ApiCallSagas");
 
-  yield takeEvery(pattern, apiCall,
-    { fetchApi, refreshAccessToken },
-    { logout, tokenRefreshing, tokenRefreshed },
-    { isTokenRefreshing, selectAccessToken, selectRefreshToken },
-    authPredicate, cancelPredicate);
+  yield takeEvery(pattern, apiCall, { fetchApi, refreshAccessToken }, { logout, tokenRefreshing, tokenRefreshed }, { isTokenRefreshing, selectAccessToken, selectRefreshToken }, authPredicate, cancelPredicate);
 }
 
 export function* ApiCall(Routine, options) {
@@ -173,7 +162,7 @@ export function* ApiCall(Routine, options) {
     error: take(Routine.ERROR)
   });
 
-  if(response) {
+  if (response) {
     return { response: response.payload };
   }
   return { error: error.payload };
