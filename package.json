@@ -16,7 +16,7 @@
   "author": "Alexander Veligurov",
   "license": "ISC",
   "dependencies": {
-    "babel-preset-env": "^6.24.1",
+    "babel-preset-env": "^1.6.1",
     "fbjs": "^0.8.15",
     "lodash": "^4.17.4",
     "redux-actions": "^2.2.1",
